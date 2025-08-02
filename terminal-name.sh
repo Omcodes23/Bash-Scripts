@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Check for input name
+# ==== Validate Input ====
 if [ -z "$1" ]; then
     echo "❌ Please provide a name to display. Example: ./install-omega.sh OMEGA"
     exit 1
@@ -14,12 +14,12 @@ REPO_URL="https://github.com/xero/figlet-fonts"
 
 echo "[+] Display name will be: $DISPLAY_NAME"
 
-# Install dependencies
+# ==== Install Required Packages ====
 echo "[+] Installing figlet and lolcat..."
 sudo apt update
-sudo apt install -y figlet lolcat
+sudo apt install -y figlet lolcat git
 
-# Clone figlet fonts
+# ==== Clone Figlet Fonts ====
 if [ ! -d "$FONT_DIR" ]; then
     echo "[+] Cloning custom figlet fonts..."
     git clone "$REPO_URL" "$FONT_DIR"
@@ -27,23 +27,25 @@ else
     echo "[=] Font repo already exists."
 fi
 
-# Rename "ANSI Shadow.flf" to "ANSI_Shadow.flf"
+# ==== Rename Problematic Font ====
 if [ -f "$FONT_DIR/$ORIGINAL_FONT_NAME" ]; then
     echo "[+] Renaming '$ORIGINAL_FONT_NAME' to '$FONT_NAME'..."
     mv "$FONT_DIR/$ORIGINAL_FONT_NAME" "$FONT_DIR/$FONT_NAME"
 fi
 
-# Ensure font path is added to .bashrc only once
+# ==== Add Font Path and Alias to .bashrc ====
 if ! grep -q "FIGLET_FONTDIR" ~/.bashrc; then
     echo "[+] Adding font path and alias to ~/.bashrc"
     echo "export FIGLET_FONTDIR=$FONT_DIR" >> ~/.bashrc
     echo "alias figlet='figlet -d \$FIGLET_FONTDIR'" >> ~/.bashrc
 fi
 
-# Add custom figlet display to bashrc (remove any previous omega line)
+# ==== Remove Previous Art Block ====
 sed -i '/# OMEGA ASCII Art/,+1d' ~/.bashrc
+
+# ==== Add Centered Banner to .bashrc ====
 echo "" >> ~/.bashrc
 echo "# OMEGA ASCII Art" >> ~/.bashrc
-echo "figlet -d \$FIGLET_FONTDIR -f $FONT_NAME \"$DISPLAY_NAME\" | lolcat" >> ~/.bashrc
+echo "figlet -d \$FIGLET_FONTDIR -f $FONT_NAME -c \"$DISPLAY_NAME\" | lolcat" >> ~/.bashrc
 
-echo "[✔] Setup complete! Restart your terminal or run: source ~/.bashrc"
+echo "[✔] Done! Restart terminal or run: source ~/.bashrc"
