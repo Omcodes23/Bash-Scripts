@@ -1,14 +1,14 @@
-#!/usr/bin/env bash
-
-set -e
+#!/bin/bash
 
 echo "🔍 Checking for tmux..."
+
+# Check if tmux is installed
 if ! command -v tmux &> /dev/null; then
-    echo "📦 Installing tmux..."
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        sudo apt-get update && sudo apt-get install -y tmux
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
-        brew install tmux
+    echo "📥 Installing tmux..."
+    if [ -f /etc/debian_version ]; then
+        sudo apt update && sudo apt install -y tmux git
+    elif [ -f /etc/redhat-release ]; then
+        sudo yum install -y tmux git
     else
         echo "❌ Unsupported OS. Please install tmux manually."
         exit 1
@@ -17,46 +17,39 @@ else
     echo "✅ tmux is already installed."
 fi
 
-# Install TPM
-TPM_DIR="$HOME/.tmux/plugins/tpm"
-if [ ! -d "$TPM_DIR" ]; then
-    echo "📥 Installing TPM (Tmux Plugin Manager)..."
-    git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
+# Ensure plugin directory exists
+echo "📂 Ensuring plugin directory exists..."
+mkdir -p ~/.tmux/plugins
+
+# Install TPM (Tmux Plugin Manager)
+echo "📥 Installing TPM (Tmux Plugin Manager)..."
+if [ ! -d ~/.tmux/plugins/tpm ]; then
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+    echo "✅ TPM installed successfully."
 else
     echo "✅ TPM already installed."
 fi
 
-# Update ~/.tmux.conf
-TMUX_CONF="$HOME/.tmux.conf"
-
-echo "⚙️ Configuring ~/.tmux.conf ..."
-if ! grep -q "tmux-plugins/tmux-resurrect" "$TMUX_CONF" 2>/dev/null; then
-    cat << 'EOF' >> "$TMUX_CONF"
-
-### >>> Added by setup script for tmux-resurrect & continuum ###
+# Create default .tmux.conf if it doesn't exist
+if [ ! -f ~/.tmux.conf ]; then
+    echo "⚙️ Creating default ~/.tmux.conf..."
+    cat <<EOL > ~/.tmux.conf
+# List of TPM plugins
 set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
 
-# Continuum auto-save every 15 minutes
-set -g @continuum-save-interval '15'
-# Continuum auto-restore on start
-set -g @continuum-restore 'on'
-
-# Initialize TMUX plugin manager
+# Initialize TPM
 run '~/.tmux/plugins/tpm/tpm'
-### <<< End of script section ###
-EOF
-    echo "✅ Plugins added to ~/.tmux.conf"
+EOL
+    echo "✅ Default ~/.tmux.conf created."
 else
-    echo "ℹ️ Plugins already configured in ~/.tmux.conf"
+    echo "⚙️ ~/.tmux.conf already exists, skipping creation."
 fi
 
-# Reload tmux config if inside tmux
-if [ -n "$TMUX" ]; then
-    echo "🔄 Reloading tmux config..."
-    tmux source-file ~/.tmux.conf
-fi
+# Install tmux plugins
+echo "⚡ Installing tmux plugins..."
+~/.tmux/plugins/tpm/bin/install_plugins
 
-echo "🎉 Setup complete!"
-echo "👉 Start tmux and press 'prefix + I' (capital i) to install plugins."
+echo "🎉 Setup complete! Start tmux and press PREFIX + I to load plugins."
