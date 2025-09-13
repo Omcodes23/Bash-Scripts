@@ -2,7 +2,7 @@
 
 echo "🔍 Checking for tmux..."
 
-# Check if tmux is installed
+# Install tmux if not present
 if ! command -v tmux &> /dev/null; then
     echo "📦 Installing tmux..."
     if [ -f /etc/debian_version ]; then
@@ -34,17 +34,29 @@ else
     echo "✅ TPM already installed."
 fi
 
-# Create default .tmux.conf if it doesn't exist
+# Create default .tmux.conf with all plugin configurations
 if [ ! -f ~/.tmux.conf ]; then
     echo "⚙️ Creating default ~/.tmux.conf..."
     cat <<EOL > ~/.tmux.conf
-# List of TPM plugins
+# === TPM Plugins ===
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'tmux-plugins/tmux-sensible'
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
 
-# Initialize TPM
+# === Continuum Auto-Restore ===
+# Automatically restore tmux sessions on tmux start
+set -g @continuum-restore 'on'
+# Save sessions every 15 minutes
+set -g @continuum-save-interval '15'
+
+# === Resurrect Options ===
+# Save Vim, Neovim, and tmux session layout
+set -g @resurrect-strategy-vim 'session'
+set -g @resurrect-strategy-nvim 'session'
+set -g @resurrect-strategy-tmux 'session'
+
+# Initialize TPM (Tmux Plugin Manager)
 run '~/.tmux/plugins/tpm/tpm'
 EOL
     echo "✅ Default ~/.tmux.conf created."
@@ -56,4 +68,6 @@ fi
 echo "⚡ Installing tmux plugins..."
 ~/.tmux/plugins/tpm/bin/install_plugins
 
-echo "🎉 Setup complete! Start tmux and press PREFIX + I (Ctrl+b, then I) to load plugins."
+echo "🎉 Setup complete!"
+echo "👉 Start tmux. Press PREFIX + I (Ctrl+b then I) to ensure plugins are loaded."
+echo "💡 Your sessions will now auto-save every 15 minutes and auto-restore on restart."
