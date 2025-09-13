@@ -18,7 +18,7 @@ else
 fi
 
 # Ensure plugin directory exists safely
-echo "📂 Checking tmux plugin directory..."
+echo "📂 Setting up tmux plugin directory..."
 if [ -f ~/.tmux ]; then
     echo "⚠️ Found a FILE named ~/.tmux — renaming it to ~/.tmux-backup"
     mv ~/.tmux ~/.tmux-backup
@@ -34,10 +34,9 @@ else
     echo "✅ TPM already installed."
 fi
 
-# Create default .tmux.conf with all plugin configurations
-if [ ! -f ~/.tmux.conf ]; then
-    echo "⚙️ Creating default ~/.tmux.conf..."
-    cat <<EOL > ~/.tmux.conf
+# Create or update .tmux.conf with plugins & auto-restore settings
+echo "⚙️ Creating/updating ~/.tmux.conf..."
+cat <<EOL > ~/.tmux.conf
 # === TPM Plugins ===
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'tmux-plugins/tmux-sensible'
@@ -45,29 +44,24 @@ set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
 
 # === Continuum Auto-Restore ===
-# Automatically restore tmux sessions on tmux start
-set -g @continuum-restore 'on'
-# Save sessions every 15 minutes
-set -g @continuum-save-interval '15'
+set -g @continuum-restore 'on'          # Automatically restore tmux sessions on start
+set -g @continuum-save-interval '15'    # Save sessions every 15 minutes
 
-# === Resurrect Options ===
-# Save Vim, Neovim, and tmux session layout
+# === Resurrect Strategies ===
 set -g @resurrect-strategy-vim 'session'
 set -g @resurrect-strategy-nvim 'session'
 set -g @resurrect-strategy-tmux 'session'
 
-# Initialize TPM (Tmux Plugin Manager)
+# Initialize TPM
 run '~/.tmux/plugins/tpm/tpm'
 EOL
-    echo "✅ Default ~/.tmux.conf created."
-else
-    echo "⚙️ ~/.tmux.conf already exists, skipping creation."
-fi
+echo "✅ ~/.tmux.conf configured."
 
 # Install tmux plugins
 echo "⚡ Installing tmux plugins..."
 ~/.tmux/plugins/tpm/bin/install_plugins
 
 echo "🎉 Setup complete!"
-echo "👉 Start tmux. Press PREFIX + I (Ctrl+b then I) to ensure plugins are loaded."
-echo "💡 Your sessions will now auto-save every 15 minutes and auto-restore on restart."
+echo "💡 Start tmux: 'tmux'"
+echo "📝 Press PREFIX + I (Ctrl+b then I) to reload plugins manually if needed."
+echo "🔄 Sessions will auto-save every 15 minutes and auto-restore on restart."
