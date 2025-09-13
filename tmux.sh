@@ -4,7 +4,7 @@ echo "🔍 Checking for tmux..."
 
 # Check if tmux is installed
 if ! command -v tmux &> /dev/null; then
-    echo "📥 Installing tmux..."
+    echo "📦 Installing tmux..."
     if [ -f /etc/debian_version ]; then
         sudo apt update && sudo apt install -y tmux git
     elif [ -f /etc/redhat-release ]; then
@@ -17,8 +17,12 @@ else
     echo "✅ tmux is already installed."
 fi
 
-# Ensure plugin directory exists
-echo "📂 Ensuring plugin directory exists..."
+# Ensure plugin directory exists safely
+echo "📂 Checking tmux plugin directory..."
+if [ -f ~/.tmux ]; then
+    echo "⚠️ Found a FILE named ~/.tmux — renaming it to ~/.tmux-backup"
+    mv ~/.tmux ~/.tmux-backup
+fi
 mkdir -p ~/.tmux/plugins
 
 # Install TPM (Tmux Plugin Manager)
@@ -52,4 +56,4 @@ fi
 echo "⚡ Installing tmux plugins..."
 ~/.tmux/plugins/tpm/bin/install_plugins
 
-echo "🎉 Setup complete! Start tmux and press PREFIX + I to load plugins."
+echo "🎉 Setup complete! Start tmux and press PREFIX + I (Ctrl+b, then I) to load plugins."
