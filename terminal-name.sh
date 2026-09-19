@@ -46,6 +46,6 @@ sed -i '/# OMEGA ASCII Art/,+1d' ~/.bashrc
 # ==== Add Centered Banner to .bashrc ====
 echo "" >> ~/.bashrc
 echo "# OMEGA ASCII Art" >> ~/.bashrc
-echo "figlet -d \$FIGLET_FONTDIR -f $FONT_NAME -c -w \"$DISPLAY_NAME\" | lolcat" >> ~/.bashrc
+echo "figlet -d \$FIGLET_FONTDIR -f $FONT_NAME -c -w \"\$(tput cols)\" \"$DISPLAY_NAME\" | lolcat" >> ~/.bashrc
 
 echo "[✔] Done! Restart terminal or run: source ~/.bashrc"
